@@ -1,6 +1,19 @@
-FROM python:3
-RUN pip install django==3.2
+# Stage 1: Build the React app
+FROM node:18 AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
 COPY . .
-RUN python manage.py migrate
-EXPOSE 8000
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+RUN npm run build
+
+# Stage 2: Serve with nginx
+FROM nginx:alpine
+
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
