@@ -1,0 +1,97 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { PlusCircle, Trash2, CheckCircle2 } from "lucide-react";
+
+export default function TodoApp() {
+  const [tasks, setTasks] = useState([]);
+  const [input, setInput] = useState("");
+
+  const addTask = () => {
+    if (input.trim() === "") return;
+    const newTask = {
+      id: Date.now(),
+      text: input,
+      completed: false,
+    };
+    setTasks([newTask, ...tasks]);
+    setInput("");
+  };
+
+  const toggleTask = (id) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const deleteTask = (id) => {
+    setTasks(tasks.filter((task) => task.id !== id));
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="bg-white shadow-2xl rounded-2xl p-6 w-full max-w-md"
+      >
+        <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">
+          ✨ My To-Do List
+        </h1>
+
+        <div className="flex gap-2 mb-4">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addTask()}
+            placeholder="Add a new task..."
+            className="flex-1 px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+          <button
+            onClick={addTask}
+            className="bg-indigo-500 text-white px-3 py-2 rounded-xl hover:bg-indigo-600 flex items-center"
+          >
+            <PlusCircle className="w-5 h-5" />
+          </button>
+        </div>
+
+        <ul className="space-y-3">
+          {tasks.length === 0 && (
+            <p className="text-center text-gray-500">No tasks yet ✍️</p>
+          )}
+          {tasks.map((task) => (
+            <motion.li
+              key={task.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-xl shadow-sm"
+            >
+              <div className="flex items-center gap-2">
+                <button onClick={() => toggleTask(task.id)}>
+                  <CheckCircle2
+                    className={`w-6 h-6 ${
+                      task.completed ? "text-green-500" : "text-gray-300"
+                    }`}
+                  />
+                </button>
+                <span
+                  className={`text-lg ${
+                    task.completed ? "line-through text-gray-400" : "text-gray-800"
+                  }`}
+                >
+                  {task.text}
+                </span>
+              </div>
+              <button onClick={() => deleteTask(task.id)}>
+                <Trash2 className="w-5 h-5 text-red-400 hover:text-red-600" />
+              </button>
+            </motion.li>
+          ))}
+        </ul>
+      </motion.div>
+    </div>
+  );
+}
